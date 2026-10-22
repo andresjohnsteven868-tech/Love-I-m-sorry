@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Little Love Letter 💗</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 100%; min-height: 100%; }
+  body {
+    overflow: hidden;
+    background: linear-gradient(180deg, #160d2b 0%, #28102f 48%, #48162f 100%);
+    color: #ffe4f0;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  #rain { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .top {
+    position: absolute; top: 22px; left: 12px; right: 12px;
+    z-index: 2; text-align: center; pointer-events: none;
+  }
+  h1 {
+    margin: 0; font-size: clamp(14px, 2vw, 22px); line-height: 1.35;
+    color: #ffe4f0; font-weight: 700; letter-spacing: .02em;
+  }
+  .subtitle { margin: 8px 0 0; font-size: clamp(11px, 1.3vw, 15px); color: #ffc0dc; font-style: italic; }
+  .buttons {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap;
+    gap: 8px; margin-top: 14px; pointer-events: auto;
+  }
+  button {
+    border: 0; border-radius: 5px; padding: 9px 13px;
+    font: 600 12px "Segoe UI", Arial, sans-serif; cursor: pointer;
+    transition: filter .15s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { filter: brightness(.96); }
+  #forgive { background: #f28ab6; color: #35142d; }
+  #spam { background: #c7a0f5; color: #28133a; }
+  #pause { background: #ffd0ad; color: #3c1b2b; }
+  #status {
+    margin-top: 10px; color: #ffd4e6; font-size: 12px; font-style: italic;
+    text-shadow: 0 1px 3px #160d2b;
+  }
+  .footer {
+    position: absolute; z-index: 2; left: 14px; right: 14px; bottom: 12px;
+    min-height: 88px; display: flex; flex-direction: column; justify-content: center;
+    text-align: center; padding: 14px 10px;
+    background: rgba(50, 19, 47, .93); border: 2px solid #a64c7c;
+    box-shadow: 0 4px 18px rgba(0,0,0,.12);
+  }
+  .footer strong { color: #fff0f7; font-size: clamp(12px, 1.4vw, 15px); }
+  .footer span { color: #ffc5df; margin-top: 9px; font-size: clamp(10px, 1.1vw, 12px); }
+  .drop {
+    position: absolute; top: 0; left: 0; white-space: nowrap;
+    user-select: none; pointer-events: none; will-change: transform;
+    text-shadow: 0 1px 3px rgba(15, 4, 25, .32);
+  }
+  @media(max-width: 520px) {
+    .top { top: 12px; }
+    .buttons { gap: 5px; margin-top: 10px; }
+    button { padding: 8px 9px; font-size: 11px; }
+    .footer { min-height: 72px; bottom: 8px; left: 8px; right: 8px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<header class="top">
+  <h1>💖 PATAWARIN NA SI JOHN STEVEN VENTURA ANDRES 💖</h1>
+  <p class="subtitle">I'm truly sorry, my love 🥺💐</p>
+  <div class="buttons">
+    <button id="forgive">Forgive Me? 🥹💗</button>
+    <button id="spam">Spam apology 💕</button>
+    <button id="pause">Pause ⏸</button>
+  </div>
+  <div id="status">A little rain of love, just for you 💞</div>
+</header>
+<section class="footer">
+  <strong>Sorry, Love. I love you so much. 💗🥹</strong>
+  <span>You are special to me, and I hope I can make things right. 🌷❤️</span>
+</section>
+<script>
+(() => {
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  const messages = [
+    "Sorry love💗", "I love you 🥹❤️", "Bati na tayo plwease 🥺💐",
+    "I’m sorry, love 😔💗", "Esmiringhoy 💖🫶",
+    "Rhianne Rich Santos, Iloveyou ❤️😘",
+    "Sorry Mahal, I love you Rhianne Rich Patayan Santos💗🥹😘",
+    "I’m thinking of you 💞", "Please smile for me 🌸"
+  ];
+  const colors = ["#ff9fcb", "#ff6b8f", "#d9a5ff", "#fff0f6", "#ffc3a0", "#ff4f79", "#e8c9ff"];
+  let width = 0, height = 0, drops = [], paused = false, spamUntil = 0, frame = 0;
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth; height = window.innerHeight;
+    canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+    canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!drops.length) for (let i = 0; i < 38; i++) drops.push(newDrop(Math.random() * height));
+  }
+  function newDrop(y) {
+    return { text: messages[Math.floor(Math.random()*messages.length)],
+      x: 8 + Math.random() * Math.max(1, width-16), y: y ?? -Math.random()*100-20,
+      speed: 0.45 + Math.random()*0.75, drift: (Math.random()-.5)*.7,
+      size: 10 + Math.floor(Math.random()*5), color: colors[Math.floor(Math.random()*colors.length)],
+      bold: Math.random() < .25 };
+  }
+  function tick() {
+    requestAnimationFrame(tick);
+    if (paused) return;
+    frame++;
+    const spam = frame < spamUntil;
+    if (drops.length < 110) {
+      if (frame % (spam ? 1 : 2) === 0) drops.push(newDrop(-Math.random()*120-20));
+      if (spam && frame % 2 === 0) drops.push(newDrop(-Math.random()*100-20));
+    }
+    ctx.clearRect(0, 0, width, height);
+    for (const d of drops) {
+      d.y += d.speed; d.x += d.drift;
+      if (d.y > height + 30) Object.assign(d, newDrop(-Math.random()*140-20));
+      ctx.font = `${d.bold ? 'bold ' : ''}${d.size}px "Segoe UI", Arial, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = d.color; ctx.fillText(d.text, d.x, d.y);
+    }
+  }
+  resize(); window.addEventListener('resize', resize); requestAnimationFrame(tick);
+  document.getElementById('forgive').addEventListener('click', () => {
+    document.getElementById('status').textContent =
+      'Thank you for hearing my heart. 🥹💗 I’m truly sorry, Rhianne. You mean so much to me.';
+  });
+  document.getElementById('spam').addEventListener('click', () => {
+    spamUntil = frame + 240;
+    for (let i = 0; i < 18 && drops.length < 110; i++) drops.push(newDrop(-Math.random()*100));
+    document.getElementById('status').textContent = 'Apology rain intensified! 💕🌧️🥹';
+  });
+  document.getElementById('pause').addEventListener('click', (e) => {
+    paused = !paused;
+    e.currentTarget.textContent = paused ? 'Resume ▶' : 'Pause ⏸';
+    document.getElementById('status').textContent = paused ?
+      'Rain paused for a little breath 💗' : 'A little rain of love, just for you 💞';
+  });
+})();
+</script>
+</body>
+</html>
